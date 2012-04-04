@@ -2,23 +2,23 @@ require_relative 'require_all'
  
 class Game
    
-    include EventHandler::HasEventHandler   
+  include EventHandler::HasEventHandler
 
-    def initialize
-      @your_details = {:ship_location => [], :ships_alive => 5, :attack_coordinates => []}
-      @computer_details = {:ship_location => [], :ships_alive => 5, :attack_coordinates => []}
-      make_screen
-      make_clock
-      make_queue
-      make_event_hooks
-      place_ships
-    end
+  def initialize
+    @your_details = {:ship_location => [], :ships_alive => 5, :attack_coordinates => []}
+    @computer_details = {:ship_location => [], :ships_alive => 5, :attack_coordinates => []}
+    make_screen
+    make_clock
+    make_queue
+    make_event_hooks
+    place_ships
+  end
 
-   def draw_playing_board(start_coordinates = [], ending_coordinates = [], colour = "white")
-     @screen.draw_box start_coordinates, ending_coordinates, colour
-   end
+  def draw_playing_board(start_coordinates = [], ending_coordinates = [], colour = "white")
+    @screen.draw_box start_coordinates, ending_coordinates, colour
+  end
 
-   def make_screen
+  def make_screen
     # Report the current dimensions of the desktop in pixels.  A fullscreen window
     # should be able to achieve at least this resolution.
     maximum_resolution = Screen.get_resolution
@@ -40,14 +40,14 @@ class Game
     draw_playing_board([250,10],[450,210],'white')
     draw_playing_board([250,250],[450,450],'red')
 
-     def cross_board(x=10,y=0,colour='white')
-       x_dup = x
-       y_dup = (y == 0 ? 10 : y)
-       GRID_SIZE.times do
-         @screen.draw_line [x +=20,y_dup], [x, (y==0 ? 10 : y_dup) + 200], colour
-         @screen.draw_line [x_dup,(y == 0 ? x : y+=20)], [(x_dup == 10 ? 210 : 450),(y == 0 ? x : y)], colour
-       end
-     end
+    def cross_board(x=10,y=0,colour='white')
+      x_dup = x
+      y_dup = (y == 0 ? 10 : y)
+      GRID_SIZE.times do
+        @screen.draw_line [x +=20,y_dup], [x, (y==0 ? 10 : y_dup) + 200], colour
+        @screen.draw_line [x_dup,(y == 0 ? x : y+=20)], [(x_dup == 10 ? 210 : 450),(y == 0 ? x : y)], colour
+      end
+    end
 
     cross_board(10,0,"white")
     cross_board(10,250,"red")
@@ -125,43 +125,43 @@ class Game
   # Create the player ship in the middle of the screen
   def place_ships
     create_ships
-       @computer_details[:ship_location] << COORDINATES.sample(5)
-       p @computer_details[:ship_location]
-       loop do
-       i = 0
-    loop do 
-      puts "Enter the no. #{i + 1} attack coordinate."
-      input = gets.chomp
-      if COORDINATES.include?(input)
-        unless @computer_details[:attack_coordinates].include?(input)
-          @your_details[:attack_coordinates] << input
-          x1 = input[0]
-	  y1 = input[1]
-	  x = 250 + X[x1]
-	  y = 10 + Y[y1]
-	  @screen.draw_line [x,y], [x + 20,y + 20], 'red'
-          @screen.draw_line [x + 20,y], [x,y + 20], 'red'
-          @screen.flip
-          i +=1
-	  @computer_details[:ships_alive] -= 1 if @computer_details[:ship_location].include?(input)
-          break if i >= @your_details[:ships_alive] 
+    @computer_details[:ship_location] << COORDINATES.sample(5)
+    p @computer_details[:ship_location]
+    loop do
+      i = 0
+      loop do
+        puts "Enter the no. #{i + 1} attack coordinate."
+        input = gets.chomp
+        if COORDINATES.include?(input)
+          unless @computer_details[:attack_coordinates].include?(input)
+            @your_details[:attack_coordinates] << input
+            x1 = input[0]
+            y1 = input[1]
+            x = 250 + X[x1]
+            y = 10 + Y[y1]
+            @screen.draw_line [x,y], [x + 20,y + 20], 'red'
+            @screen.draw_line [x + 20,y], [x,y + 20], 'red'
+            @screen.flip
+            i +=1
+            @computer_details[:ships_alive] -= 1 if @computer_details[:ship_location].include?(input)
+            break if i >= @your_details[:ships_alive]
+          else
+            puts "Already choosed this Coordinate"
+          end
         else
-          puts "Already choosed this Coordinate"  
+          puts "This is not a valid Coordinate"
         end
-      else
-        puts "This is not a valid Coordinate"
       end
-    end
 
       puts "Now Computer Playing....." 
       inputs = (COORDINATES - @computer_details[:attack_coordinates]).sample(@computer_details[:ships_alive])
       inputs.each do |input| 
         @your_details[:attack_coordinates] << input
         x1 = input[0]
-	y1 = input[1]
-	x = 250 + X[x1]
-	y = 250 + Y[y1]
-	@screen.draw_line [x,y], [x + 20,y + 20], 'white'
+        y1 = input[1]
+        x = 250 + X[x1]
+        y = 250 + Y[y1]
+        @screen.draw_line [x,y], [x + 20,y + 20], 'white'
         @screen.draw_line [x + 20,y], [x,y + 20], 'white'
         @your_details[:ships_alive] -= 1 if @your_details[:ship_location].include?(input)
         @screen.flip
@@ -173,18 +173,18 @@ class Game
       elsif @your_details[:ships_alive] == 0
         puts "COMPUTER WON !!!!!"
         x1 = input[0]
-	y1 = input[1]
-	x = 10 + X[x1]
-	y = 10 + Y[y1]
-	10.times do
-	  @screen.draw_line [x, y +=2], [ x + 20,y], 'white'
-	end
+        y1 = input[1]
+        x = 10 + X[x1]
+        y = 10 + Y[y1]
+        10.times do
+          @screen.draw_line [x, y +=2], [ x + 20,y], 'white'
+        end
         @screen.flip
         break
       end
-     end
+    end
     p @your_details
-     gets
+    gets
     #@ship = Ship.new( @screen.w/2, @screen.h/2 , 'red')
  
     # Make event hook to pass all events to @ship#handle().
@@ -193,7 +193,7 @@ class Game
 
 
  
-    # The "main loop". Repeat the #step method
+  # The "main loop". Repeat the #step method
   # over and over and over until the user quits.
   def go
     catch(:quit) do
@@ -203,7 +203,7 @@ class Game
     end
   end
 
-    # Quit the game
+  # Quit the game
   def quit
     puts "Quitting!"
     throw :quit
