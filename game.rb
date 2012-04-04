@@ -14,6 +14,10 @@ class Game
       place_ships
     end
 
+   def draw_playing_board(start_coordinates = [], ending_coordinates = [], colour = "white")
+     @screen.draw_box start_coordinates, ending_coordinates, colour
+   end
+
    def make_screen
     # Report the current dimensions of the desktop in pixels.  A fullscreen window
     # should be able to achieve at least this resolution.
@@ -31,33 +35,25 @@ class Game
     # Screen is a Surface, so all methods on Surface are available
     center = maximum_resolution.collect! {|axis| axis / 2}
     color = [ 0xc0, 0x80, 0x40]
-    @screen.draw_box [10,10], [210,210], 'white'
-    @screen.draw_box [10,250], [210,450], 'red'
-    @screen.draw_box [250,10], [450,210], 'white'
-    @screen.draw_box [250,250], [450,450], 'red'
-    x = 10
-    10.times do |i|
-      @screen.draw_line [x +=20,10], [x,210], 'white'
-      @screen.draw_line [10,x], [210, x], 'white'
-    end
-    x = 10
-    y = 250
-    10.times do
-      @screen.draw_line [x += 20 ,250], [x,450], 'red'
-      @screen.draw_line [10, y +=20], [210,y], 'red'
-    end
-    x = 250
-    y = 10
-    10.times do |i|
-      @screen.draw_line [x +=20, 10], [x,210], 'white'
-      @screen.draw_line [250,y +=20], [450,y], 'white'
-    end
-    x = 250
-    y = 250
-    10.times do |i|
-      @screen.draw_line [x +=20,250], [x,450], 'red'
-      @screen.draw_line [250, y +=20], [450,y], 'red'
-    end
+    draw_playing_board([10,10],[210,210],'white')
+    draw_playing_board([10,250],[210,450],'red')
+    draw_playing_board([250,10],[450,210],'white')
+    draw_playing_board([250,250],[450,450],'red')
+
+     def cross_board(x=10,y=0,colour='white')
+       x_dup = x
+       y_dup = (y == 0 ? 10 : y)
+       GRID_SIZE.times do
+         @screen.draw_line [x +=20,y_dup], [x, (y==0 ? 10 : y_dup) + 200], colour
+         @screen.draw_line [x_dup,(y == 0 ? x : y+=20)], [(x_dup == 10 ? 210 : 450),(y == 0 ? x : y)], colour
+       end
+     end
+
+    cross_board(10,0,"white")
+    cross_board(10,250,"red")
+    cross_board(250,10,"white")
+    cross_board(250,250,"red")
+    
     # Show the changes to the screen surface by flipping the buffer that is visible
     # to the user.  All changes made to the screen surface will appear
     # simultaneously
@@ -100,32 +96,35 @@ class Game
     @queue.ignore = [MouseMoved]
   end
 
-  # Create the player ship in the middle of the screen
-  def place_ships
+  def create_ships
     i = 0
-    loop do 
+    loop do
       puts "Enter the cordinates to place the ship no #{i + 1}"
       input = gets.chomp
       if COORDINATES.include?(input)
         unless @your_details[:ship_location].include?(input)
           @your_details[:ship_location] << input
-          x1 = input[0]
-	  y1 = input[1]
-	  x = 10 + X[x1]
-	  y = 250 + Y[y1]
-	  10.times do
-	    @screen.draw_line [x, y +=2], [ x + 20,y], 'red'
-	  end
+          x1,y1 = input.split("")
+          x = 10 + X[x1]
+          y = 250 + Y[y1]
+          GRID_SIZE.times do
+            @screen.draw_line [x, y +=2], [ x + 20,y], 'red'
+          end
           @screen.flip
           i +=1
-          break if i >= @your_details[:ships_alive] 
+          break if i >= @your_details[:ships_alive]
         else
-          puts "Already choosed this Coordinate"  
+          puts "Already choosed this Coordinate"
         end
       else
         puts "This is not a valid Coordinate"
       end
-      end
+    end
+  end
+
+  # Create the player ship in the middle of the screen
+  def place_ships
+    create_ships
        @computer_details[:ship_location] << COORDINATES.sample(5)
        p @computer_details[:ship_location]
        loop do

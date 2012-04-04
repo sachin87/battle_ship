@@ -3,6 +3,8 @@
 # set of coordinates that are avalable in game for a user to select
 COORDINATES = ('a0'..'j9').to_a
 
+GRID_SIZE = 10
+
 # mapping of above cordinates to a specific value.
 # Example if a user select 'a0'
 # then x = 'a0'[0]
